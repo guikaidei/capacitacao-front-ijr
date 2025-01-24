@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const LoginContainer = styled.div`
   display: flex;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -75,7 +76,6 @@ export const Login: React.FC = () => {
         email,
         password
         });
-
         navigate('/admin/dashboard');
     } catch (err) {
         console.error('Login error:', err);

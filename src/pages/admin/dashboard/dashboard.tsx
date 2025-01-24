@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -101,6 +102,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'danger' | 'secondary' }>`
     color: #333;
     &:hover { background-color: #d5d5d5; }
   `}
+
+  
 `;
 
 const CalendarGrid = styled.div`
@@ -201,6 +204,20 @@ export const Dashboard: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    localStorage.removeItem('admin_auth_token'); 
+    localStorage.clear();
+    try {
+      await axios.get('http://127.0.0.1:8000/admin/auth/logout'), {
+        withCredentials: true
+      };
+      navigate('/admin/login');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
 
   const fetchReservations = async () => {
     try {
@@ -413,7 +430,13 @@ export const Dashboard: React.FC = () => {
 
   return (
     <Container>
-      <h1>Reservas</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h1>Reservas</h1>
+        <Button $variant="secondary" onClick={handleLogout} >
+            Logout
+          </Button>
+      </div>
+      
       <CalendarGrid>
         <Sidebar>
           <MonthSelector>

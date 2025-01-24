@@ -16,13 +16,13 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
     const checkAuth = async () => {
       try {
 
-        const response = await fetch('http://127.0.0.1:8000/admin/auth/check/token', {
+        const response = await fetch('http://127.0.0.1:8000/client/auth/check/token', {
           method: 'POST',
           credentials: 'include', 
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({}),
+          body: JSON.stringify({}), 
         });
   
         if (!response.ok) {
@@ -34,6 +34,8 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
         console.log(data);
         
         setIsAuthenticated(data.status === 'success');
+        localStorage.setItem('menuUser', JSON.stringify(data.user));
+
 
 
       } catch (error) {
@@ -51,7 +53,7 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   }
 
   if (isAuthenticated === false) {
-    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+    return <Navigate to="/client/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;

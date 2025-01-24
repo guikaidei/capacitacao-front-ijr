@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
-// Styled Components
 const Container = styled.div`
   padding: 20px;
   font-family: 'Inter', sans-serif;
@@ -10,6 +10,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   height: 100vh;
+  position: relative;
 `;
 
 const ReservationList = styled.ul`
@@ -17,8 +18,8 @@ const ReservationList = styled.ul`
   padding: 0;
   width: 100%;
   max-width: 600px;
-  max-height: calc(100vh - 250px); // Adjust height to leave space for title and button
-  overflow-y: auto; // Enable vertical scrolling
+  max-height: calc(100vh - 250px);
+  overflow-y: auto;
   margin-bottom: 20px;
 `;
 
@@ -42,7 +43,22 @@ const Button = styled.button`
   }
 `;
 
+const LogoutButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
 
+  &:hover {
+    background-color: #d32f2f;
+  }
+`;
 
 const ReservationItem = styled.li`
   display: flex;
@@ -115,7 +131,6 @@ const CloseButton = styled(Button)`
   }
 `;
 
-// Helper function to get today's date components
 const getTodayComponents = () => {
   const today = new Date();
   return {
@@ -125,7 +140,6 @@ const getTodayComponents = () => {
   };
 };
 
-// Component
 export const Menu: React.FC = () => {
   const [reservations, setReservations] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -137,28 +151,69 @@ export const Menu: React.FC = () => {
     inicial_time: '',
     pessoas: '',
   });
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/client/login'; 
+  };
 
   useEffect(() => {
-    // Preenche os campos iniciais do formulário com a data atual
     const { day, month, year } = getTodayComponents();
     setFormData(prev => ({ ...prev, day, month, year }));
   }, []);
 
-  // Fetch reservations from the API
+  useEffect(() => {
+    const storedUser = localStorage.getItem('menuUser');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUserId(parsedUser.client_id);
+      setUserName(parsedUser.client_name);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchReservations();
+    }
+  }, [userId]);
+
   const fetchReservations = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/admin/get-reservations');
-      setReservations(response.data);
+      const response = await axios.get(`http://127.0.0.1:8000/client/get-reservation/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      const sortedReservations = response.data.sort((a: any, b: any) => {
+        if (a.year !== b.year) {
+          return a.year - b.year;
+        }
+        
+        if (a.month !== b.month) {
+          return a.month - b.month;
+        }
+        
+        if (a.day !== b.day) {
+          return a.day - b.day;
+        }
+        
+        const timeToMinutes = (time: string) => {
+          const [hours, minutes] = time.split(':').map(Number);
+          return hours * 60 + minutes;
+        };
+        
+        return timeToMinutes(a.inicial_time) - timeToMinutes(b.inicial_time);
+      });
+      
+      setReservations(sortedReservations);
     } catch (error) {
       console.error('Erro ao buscar reservas:', error);
     }
   };
 
-  useEffect(() => {
-    fetchReservations();
-  }, []);
-
-  // Delete reservation
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`http://127.0.0.1:8000/admin/delete-reservation/${id}`);
@@ -168,19 +223,18 @@ export const Menu: React.FC = () => {
     }
   };
 
-  // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Create a new reservation
   const handleCreateReservation = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       await axios.post('http://127.0.0.1:8000/client/create-reservation', {
         client: formData.client,
+        clientId: userId,
         status: "agendada",
         day: parseInt(formData.day, 10),
         month: parseInt(formData.month, 10),
@@ -189,11 +243,9 @@ export const Menu: React.FC = () => {
         pessoas: parseInt(formData.pessoas, 10),
       });
 
-      
       fetchReservations();
       setIsModalOpen(false);
 
-      // Reset form data
       const { day, month, year } = getTodayComponents();
       setFormData({
         client: '',
@@ -210,6 +262,8 @@ export const Menu: React.FC = () => {
 
   return (
     <Container>
+      <LogoutButton onClick={handleLogout}>Sair</LogoutButton>
+
       <Title>Reservas</Title>
 
       <ReservationList>

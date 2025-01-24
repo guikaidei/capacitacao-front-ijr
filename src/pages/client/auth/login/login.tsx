@@ -1,5 +1,7 @@
+import axios from 'axios';
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const LoginContainer = styled.div`
   display: flex;
@@ -49,12 +51,32 @@ const Button = styled.button`
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implement login logic here
-    console.log('Login attempt:', { email, password });
-  };
+  const api = axios.create({
+    baseURL: 'http://127.0.0.1:8000',
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json',
+    }
+    });
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      
+      try {
+          const response = await api.post('/client/auth/login', {
+          email,
+          password
+          });
+          navigate('/client/menu');
+      } catch (err) {
+          console.error('Login error:', err);
+          setError('Login failed');
+      }
+      };
 
   return (
     <LoginContainer>
