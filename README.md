@@ -1,50 +1,33 @@
-# React + TypeScript + Vite
+# Entregável capacitação IJR
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Autor
+Guilherme Kaidei
 
-Currently, two official plugins are available:
+## Descrição
+Este projeto é uma aplicação desenvolvida com React e Vite, que possui duas seções principais: uma para clientes e outra para administradores, cada uma com suas respectivas rotas e funcionalidades.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Rotas
+### Cliente
+- `/client/login` - Página de login para clientes.
+- `/client/menu` - Menu principal para clientes.
 
-## Expanding the ESLint configuration
+### Administrador
+- `/admin/login` - Página de login para administradores.
+- `/admin/dashboard` - Painel principal para administradores.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
-
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+## Instruções para rodar o projeto
+1. Certifique-se de ter o **Node.js** instalado em sua máquina.
+2. Clone este repositório:
+3. Navegue até a pasta do projeto:
+4. Instale as dependências:
+   ```bash
+   npm install
+   ```
+5. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+6. Acesse a aplicação no navegador:
+   ```
+   http://localhost:5173
+   ```
